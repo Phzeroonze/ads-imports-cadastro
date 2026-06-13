@@ -1236,26 +1236,37 @@ function renderResult(d, nomeProduto, sku) {
   // HTML
   set('r-html', d.descricao_html);
 
-  // Fotos
+  // Fotos — com preview de imagem se disponivel
   const fc = document.getElementById('r-fotos-container');
   if (d.fotos && d.fotos.length) {
-    fc.innerHTML = d.fotos.map(f => `
+    fc.innerHTML = d.fotos.map((f, i) => {
+      const photoPreview = photos[i] ? photos[i].url : null;
+      const previewHtml = photoPreview
+        ? '<img src="' + photoPreview + '" style="width:100%;height:200px;object-fit:cover;border:1px solid var(--line);margin-bottom:10px;display:block;border-radius:2px;">'
+        : '<div style="width:100%;height:80px;background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:10px;color:var(--mut2);letter-spacing:0.1em;text-transform:uppercase;">Foto ' + f.ordem + ' — arraste as imagens no painel esquerdo</div>';
+      return `
       <div class="foto-block">
+        ${previewHtml}
         <div class="foto-header">
           <div class="foto-num">${f.ordem}</div>
           <div class="foto-tipo">${f.tipo || ''}</div>
-          <button class="btn-sm" onclick="copyText('${esc(f.arquivo)}\\n${esc(f.alt)}',this)">Copiar</button>
         </div>
         <div class="foto-field">
           <div class="foto-field-label">Nome do arquivo</div>
           <div class="foto-field-value">${f.arquivo || '—'}</div>
         </div>
+        <div style="margin-top:5px;margin-bottom:8px;">
+          <button class="btn-sm" style="width:100%" onclick="copyText('${esc(f.arquivo)}',this)">Copiar nome do arquivo</button>
+        </div>
         <div class="foto-field">
           <div class="foto-field-label">Texto ALT (SEO)</div>
           <div class="foto-field-value">${f.alt || '—'}</div>
         </div>
+        <div style="margin-top:5px;">
+          <button class="btn-sm" style="width:100%" onclick="copyText('${esc(f.alt)}',this)">Copiar ALT text</button>
+        </div>
       </div>
-    `).join('');
+    `}).join('');
   }
 
   // Técnico
