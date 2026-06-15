@@ -267,7 +267,10 @@ textarea { resize: vertical; min-height: 90px; font-family: var(--mono); font-si
 .mini-value.mono { font-family: var(--mono); font-size: 12px; }
 
 /* FOTOS */
-.foto-block { background: var(--panel); border: 1px solid var(--line); padding: 13px 15px; margin-bottom: 8px; }
+.foto-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.foto-block { background: var(--panel); border: 1px solid var(--line); padding: 10px; margin-bottom: 0; }
+.foto-thumb { width: 100%; height: 110px; object-fit: cover; border: 1px solid var(--line); display: block; border-radius: 2px; margin-bottom: 8px; }
+.foto-thumb-empty { width: 100%; height: 60px; background: var(--panel2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 9px; color: var(--mut2); letter-spacing: 0.08em; text-transform: uppercase; }
 .foto-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
 .foto-num { width: 24px; height: 24px; background: var(--panel3); display: flex; align-items: center; justify-content: center; font-family: var(--display); font-size: 14px; color: var(--acc); flex-shrink: 0; }
 .foto-tipo { font-size: 10px; color: var(--mut); flex: 1; }
@@ -1239,34 +1242,31 @@ function renderResult(d, nomeProduto, sku) {
   // Fotos — com preview de imagem se disponivel
   const fc = document.getElementById('r-fotos-container');
   if (d.fotos && d.fotos.length) {
-    fc.innerHTML = d.fotos.map((f, i) => {
+    const fotosHtml = d.fotos.map((f, i) => {
       const photoPreview = photos[i] ? photos[i].url : null;
-      const previewHtml = photoPreview
-        ? '<img src="' + photoPreview + '" style="width:100%;height:200px;object-fit:cover;border:1px solid var(--line);margin-bottom:10px;display:block;border-radius:2px;">'
-        : '<div style="width:100%;height:80px;background:var(--panel2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-size:10px;color:var(--mut2);letter-spacing:0.1em;text-transform:uppercase;">Foto ' + f.ordem + ' — arraste as imagens no painel esquerdo</div>';
+      const thumbHtml = photoPreview
+        ? '<img class="foto-thumb" src="' + photoPreview + '" alt="foto ' + f.ordem + '">'
+        : '<div class="foto-thumb-empty">Foto ' + f.ordem + '</div>';
       return `
       <div class="foto-block">
-        ${previewHtml}
-        <div class="foto-header">
+        ${thumbHtml}
+        <div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;">
           <div class="foto-num">${f.ordem}</div>
-          <div class="foto-tipo">${f.tipo || ''}</div>
+          <div class="foto-tipo" style="font-size:9px;color:var(--mut);flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${f.tipo || ''}</div>
         </div>
         <div class="foto-field">
           <div class="foto-field-label">Nome do arquivo</div>
-          <div class="foto-field-value">${f.arquivo || '—'}</div>
+          <div class="foto-field-value" style="font-size:10px;padding:5px 8px;">${f.arquivo || '—'}</div>
         </div>
-        <div style="margin-top:5px;margin-bottom:8px;">
-          <button class="btn-sm" style="width:100%" onclick="copyText('${esc(f.arquivo)}',this)">Copiar nome do arquivo</button>
-        </div>
+        <button class="btn-sm" style="width:100%;margin:4px 0;" onclick="copyText('${esc(f.arquivo)}',this)">Copiar nome</button>
         <div class="foto-field">
-          <div class="foto-field-label">Texto ALT (SEO)</div>
-          <div class="foto-field-value">${f.alt || '—'}</div>
+          <div class="foto-field-label">ALT text (SEO)</div>
+          <div class="foto-field-value" style="font-size:10px;padding:5px 8px;">${f.alt || '—'}</div>
         </div>
-        <div style="margin-top:5px;">
-          <button class="btn-sm" style="width:100%" onclick="copyText('${esc(f.alt)}',this)">Copiar ALT text</button>
-        </div>
+        <button class="btn-sm" style="width:100%;margin-top:4px;" onclick="copyText('${esc(f.alt)}',this)">Copiar ALT</button>
       </div>
     `}).join('');
+    fc.innerHTML = '<div class="foto-grid">' + fotosHtml + '</div>';
   }
 
   // Técnico
