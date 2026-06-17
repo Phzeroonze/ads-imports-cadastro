@@ -310,6 +310,8 @@ textarea { resize: vertical; min-height: 90px; font-family: var(--mono); font-si
 .td-status { }
 .badge-done { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; color: var(--green); background: var(--green2); padding: 3px 8px; }
 .badge-pending { font-size: 10px; color: var(--mut2); }
+.badge-error { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; color: var(--red); background: var(--red2); padding: 3px 8px; }
+.td-estoque { font-family: var(--mono); font-size: 11px; color: var(--mut); text-align: center; }
 .btn-select-product {
   font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase;
   padding: 4px 10px; background: transparent; border: 1px solid var(--line2);
@@ -666,6 +668,7 @@ textarea { resize: vertical; min-height: 90px; font-family: var(--mono); font-si
           <option value="">Todos</option>
           <option value="done">Cadastrados</option>
           <option value="pending">Pendentes</option>
+          <option value="erro404">⚠️ Erro 404</option>
         </select>
       </div>
       <table class="catalog-table">
@@ -675,6 +678,7 @@ textarea { resize: vertical; min-height: 90px; font-family: var(--mono); font-si
             <th>SKU</th>
             <th>Marca</th>
             <th>Categoria</th>
+            <th>Estoque</th>
             <th>Preço</th>
             <th>Status</th>
             <th></th>
@@ -714,205 +718,269 @@ textarea { resize: vertical; min-height: 90px; font-family: var(--mono); font-si
 
 <script>
 // ============================================================
-// CATÁLOGO COMPLETO — 292 PRODUTOS DA PLANILHA
+// CATÁLOGO — 247 PRODUTOS ATIVOS COM IMAGEM (cruzado com estoque real Nuvemshop + Olist em 17/06/2026)
+// status: "pendente" = falta otimizar | "trabalhado" = já cadastrado | "erro404" = otimizado mas com erro de sincronização Olist->Nuvemshop, resolver antes de seguir
 // ============================================================
 const CATALOG = [
-{"sku":"VRF","nome":"Versace Eros Flame 100ml","cat":"Perfumes","marca":"Versace","genero":"Unissex","preco":"600.00"},
-{"sku":"VEE","nome":"Versace Eros Energy 100ml","cat":"Perfumes","marca":"Versace","genero":"Unissex","preco":"600.00"},
-{"sku":"VEW01","nome":"Vela Aromatizadora Strawberry Pound Cake 227g - BBW","cat":"Cosméticos e Body Splash","marca":"Bath & Body Works","genero":"Unissex","preco":"100.00"},
-{"sku":"TGRWP-1","nome":"Tênis Gucci Re-Web Prata","cat":"Tênis e Calçados","marca":"Gucci","genero":"Unissex","preco":"3000.00"},
-{"sku":"TEPAB","nome":"Tenis Emporio Armani Branco 42","cat":"Tênis e Calçados","marca":"Armani","genero":"Unissex","preco":"1200.00"},
-{"sku":"TNBLA","nome":"Tenis Balmain 39","cat":"Tênis e Calçados","marca":"Balmain","genero":"Unissex","preco":"3200.00"},
-{"sku":"S007L","nome":"Shorts Lacoste Sport Azul/Vermelho/Branco L","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"M012","nome":"Shorts Lacoste Sport Azul M","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"05XXL","nome":"Shorts Lacoste Sport Azul XXL","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"S006M","nome":"Shorts Lacoste Sport Azul M","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"450.00"},
-{"sku":"011XL","nome":"Shorts Lacoste Praia Verde Militar XL","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"400.00"},
-{"sku":"010XL","nome":"Shorts Lacoste Moletom XL","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"083XL","nome":"Short Lacoste Sport Tênis Preto/Azul 3XL","cat":"Tênis e Calçados","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"STHM","nome":"Sabonete Tree Hut Watermelon 532ml","cat":"Cosméticos e Body Splash","marca":"Tree Hut","genero":"Unissex","preco":"150.00"},
-{"sku":"PLTW1","nome":"Polo Lacoste Worldwide","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"300.00"},
-{"sku":"SVRD8","nome":"Polo Lacoste Sport Verde 8","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"600.00"},
-{"sku":"PLSRR","nome":"Polo Lacoste Sport Roxa 5","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"550.00"},
-{"sku":"LLLS","nome":"Polo Lacoste Sport Lisa Lilás","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"400.00"},
-{"sku":"PLRL","nome":"Polo Lacoste Roxa","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"PML-1","nome":"Polo Lacoste Manga Longa","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"450.00"},
-{"sku":"DJG1","nome":"Polo Lacoste Djokovic Gold","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"650.00"},
-{"sku":"GIZ4","nome":"Polo Lacoste Basica Cinza Giz 4","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"300.00"},
-{"sku":"PRYA","nome":"Perfume Yara Tous 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"200.00"},
-{"sku":"PXJFF","nome":"Perfume Xejorff Naxos 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"2000.00"},
-{"sku":"PRSDR","nome":"Perfume Souvernir Desert Rose 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"200.00"},
-{"sku":"PSEDP","nome":"Perfume Salvo Eau de Parfum 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"250.00"},
-{"sku":"PRSAW","nome":"Perfume Sabah 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"250.00"},
-{"sku":"PRPRL","nome":"Perfume Polo Ralph Lauren 67 75ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"350.00"},
-{"sku":"PRPTP","nome":"Perfume Pink To Pink 60ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"220.00"},
-{"sku":"PROFG","nome":"Perfume Oud for Glory 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"280.00"},
-{"sku":"PRMP","nome":"Perfume Montale Paris 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"600.00"},
-{"sku":"PMEDP","nome":"Perfume Milano Eau de Parfum 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"400.00"},
-{"sku":"PRKP","nome":"Perfume Lattafa Kids Play 75ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"200.00"},
-{"sku":"PLAL","nome":"Perfume Lacoste Original Parfum 100ml","cat":"Perfumes","marca":"Lacoste","genero":"Unissex","preco":"550.00"},
-{"sku":"PRKS","nome":"Perfume Kyoto Selective 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"300.00"},
-{"sku":"PRHAO","nome":"Perfume Haramain Amber Oud 120ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"500.00"},
-{"sku":"PRDPF","nome":"Perfume Delilah pour Femme 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Feminino","preco":"250.00"},
-{"sku":"PRAA","nome":"Perfume Ana Abiyedh 60ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"220.00"},
-{"sku":"PAAA","nome":"Perfume Amer Al Arab Prive Rose 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"180.00"},
-{"sku":"PAAAI","nome":"Perfume Ameer Al Arab Imperium 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"180.00"},
-{"sku":"PRAR","nome":"Perfume Amber Rouge 80ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"500.00"},
-{"sku":"PRANS","nome":"Perfume Al Noble Saffer 100ml","cat":"Perfumes","marca":"Sem marca","genero":"Unissex","preco":"280.00"},
-{"sku":"NSTPA","nome":"Nike Shox TL Preto/Amarelo 41","cat":"Tênis e Calçados","marca":"Nike","genero":"Unissex","preco":"1200.00"},
-{"sku":"NTLBP-37","nome":"Nike Shox TL Branco/Prata 37","cat":"Tênis e Calçados","marca":"Nike","genero":"Unissex","preco":"1200.00"},
-{"sku":"NSTLB","nome":"Nike Shox TL Branco 33.5","cat":"Tênis e Calçados","marca":"Nike","genero":"Unissex","preco":"800.00"},
-{"sku":"NTLPC","nome":"Nike Shox TL Preto/Cinza 42","cat":"Tênis e Calçados","marca":"Nike","genero":"Unissex","preco":"1400.00"},
-{"sku":"NRPPL","nome":"Nike Shox R4 Prata/Preto/Laranja 34.5","cat":"Tênis e Calçados","marca":"Nike","genero":"Unissex","preco":"1000.00"},
-{"sku":"NRPAB","nome":"Nike Shox R4 Prata/Azul/Branco 38","cat":"Tênis e Calçados","marca":"Nike","genero":"Unissex","preco":"1000.00"},
-{"sku":"NR4DP","nome":"Nike Shox R4 Dourado/Preto 39.5","cat":"Tênis e Calçados","marca":"Nike","genero":"Unissex","preco":"1000.00"},
-{"sku":"NR4BV","nome":"Nike Shox R4 Dourado/Branco 38","cat":"Tênis e Calçados","marca":"Nike","genero":"Unissex","preco":"1000.00"},
-{"sku":"NSRBV","nome":"Nike Shox R4 Branco/Vermelho 36","cat":"Tênis e Calçados","marca":"Nike","genero":"Unissex","preco":"1000.00"},
-{"sku":"NSHXP-1","nome":"Nike Shox R4 Preto","cat":"Tênis e Calçados","marca":"Nike","genero":"Unissex","preco":"1000.00"},
-{"sku":"MTNKT","nome":"Moletom Nike Tech Fleece Cinza G","cat":"Roupas Unissex","marca":"Nike","genero":"Unissex","preco":"750.00"},
-{"sku":"MTLTC","nome":"Moletom Lacoste Tricolor 4","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"450.00"},
-{"sku":"MRDG","nome":"Moletom Lacoste Roland Garros","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"700.00"},
-{"sku":"H0801","nome":"Moletom Lacoste Preto Croco 5","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"MLCPR","nome":"Moletom Lacoste Paris Preta 4","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"450.00"},
-{"sku":"MZZ","nome":"Moletom Lacoste Meio Ziper 8","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"700.00"},
-{"sku":"MLLGC-1","nome":"Moletom Lacoste Lilas Gola Careca","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"550.00"},
-{"sku":"MLC00","nome":"Moletom Lacoste Gola Careca Cinza 8","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"400.00"},
-{"sku":"MLG9","nome":"Moletom Lacoste Gola Careca AM 9","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"400.00"},
-{"sku":"VGC-1","nome":"Moletom Lacoste GC Verde","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"600.00"},
-{"sku":"MLE-1","nome":"Moletom Lacoste GC Branco","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"MTL01-1","nome":"Moletom Lacoste Canguru Escrita","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"550.00"},
-{"sku":"MCZ","nome":"Moletom Lacoste Canguru Cinza","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"550.00"},
-{"sku":"ML86","nome":"Moletom Lacoste Canguru Azul Marinho","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"LGC-1","nome":"Moletom Lacoste Basico Gola Careca","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"430.00"},
-{"sku":"9788","nome":"Moletom Lacoste Azul Marinho GC Croco 5","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"450.00"},
-{"sku":"GCAX","nome":"Moletom Gola Careca Armani Exchange","cat":"Roupas Unissex","marca":"Armani","genero":"Unissex","preco":"400.00"},
-{"sku":"MTEA1-1","nome":"Moletom Canguru Emporio Armani","cat":"Roupas Unissex","marca":"Armani","genero":"Unissex","preco":"850.00"},
-{"sku":"MTAX0-1","nome":"Moletom AX Preto Águia Dourada","cat":"Roupas Unissex","marca":"Brooksfield","genero":"Unissex","preco":"650.00"},
-{"sku":"MAXF0","nome":"Moletom AX Feminino Preto P","cat":"Roupas Femininas","marca":"Armani","genero":"Feminino","preco":"400.00"},
-{"sku":"AXFM0","nome":"Moletom AX Feminino Branco M","cat":"Roupas Femininas","marca":"Armani","genero":"Feminino","preco":"400.00"},
-{"sku":"MTAXV","nome":"Moletom Armani Exchange Zíper Vermelho XL","cat":"Roupas Unissex","marca":"Armani","genero":"Unissex","preco":"450.00"},
-{"sku":"MZN14","nome":"Mizuno Wave Prophecy 14 Preto Dourado 41","cat":"Tênis e Calçados","marca":"Sem marca","genero":"Unissex","preco":"1350.00"},
-{"sku":"MTVC0","nome":"Manteiga Corporal Vitamin C 240g Tree Hut","cat":"Cosméticos e Body Splash","marca":"Tree Hut","genero":"Unissex","preco":"150.00"},
-{"sku":"MANTC","nome":"Manteiga Corporal Coco Colada 240g Tree Hut","cat":"Cosméticos e Body Splash","marca":"Tree Hut","genero":"Unissex","preco":"150.00"},
-{"sku":"MANT2","nome":"Manteiga Corporal Bahamas 185g BBW","cat":"Cosméticos e Body Splash","marca":"Bath & Body Works","genero":"Unissex","preco":"150.00"},
-{"sku":"JTHV-1","nome":"Jaqueta Tommy Hilfiger Velejador","cat":"Roupas Unissex","marca":"Tommy Hilfiger","genero":"Unissex","preco":"800.00"},
-{"sku":"JQTSB-1","nome":"Jaqueta Seleção Brasileira","cat":"Roupas Unissex","marca":"Sem marca","genero":"Unissex","preco":"600.00"},
-{"sku":"JQTBR","nome":"Jaqueta Nike Brasil Patrocinio Cinza GG","cat":"Roupas Unissex","marca":"Nike","genero":"Unissex","preco":"600.00"},
-{"sku":"JLSV0","nome":"Jaqueta Lacoste Sport Verde/Cinza 6","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"700.00"},
-{"sku":"JLCST-1","nome":"Jaqueta Lacoste Sport","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"750.00"},
-{"sku":"JQD-1","nome":"Jaqueta Diesel","cat":"Roupas Unissex","marca":"Diesel","genero":"Unissex","preco":"2200.00"},
-{"sku":"HWINR","nome":"Hidratante Winterberry Wonder 226g BBW","cat":"Cosméticos e Body Splash","marca":"Bath & Body Works","genero":"Unissex","preco":"120.00"},
-{"sku":"HDWAR","nome":"Hidratante Warm Vanilla Sugar 236ml BBW","cat":"Cosméticos e Body Splash","marca":"Bath & Body Works","genero":"Unissex","preco":"120.00"},
-{"sku":"HVL02","nome":"Hidratante Velvet Petals Starlit 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"HVL01","nome":"Hidratante Velvet Petals 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"HDRUS","nome":"Hidratante Rush 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"HRM01","nome":"Hidratante Romantic 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"HPR02","nome":"Hidratante Pure Seduction Shimmer 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"HPR01","nome":"Hidratante Pure Seduction 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"HPTBZ","nome":"Hidratante Petal Buzz 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"HMID","nome":"Hidratante Midnight Bloom 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"HLV02","nome":"Hidratante Love Spell Starlit 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"HLV01","nome":"Hidratante Love Spell 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"HIDJP","nome":"Hidratante Japanese Cherry Blossom 236ml BBW","cat":"Cosméticos e Body Splash","marca":"Bath & Body Works","genero":"Unissex","preco":"120.00"},
-{"sku":"INTH0","nome":"Hidratante In The Stars 236ml BBW","cat":"Cosméticos e Body Splash","marca":"Bath & Body Works","genero":"Unissex","preco":"120.00"},
-{"sku":"HDGIN","nome":"Hidratante Ginghan 226g BBW","cat":"Cosméticos e Body Splash","marca":"Bath & Body Works","genero":"Unissex","preco":"120.00"},
-{"sku":"HDFPR","nome":"Hidratante Fame Paco Rabanne 200ml","cat":"Cosméticos e Body Splash","marca":"Sem marca","genero":"Unissex","preco":"350.00"},
-{"sku":"HIDCH","nome":"Hidratante Champagne Toast 236ml BBW","cat":"Cosméticos e Body Splash","marca":"Bath & Body Works","genero":"Unissex","preco":"120.00"},
-{"sku":"HBRS1","nome":"Hidratante Bare Vanilla Shimmer 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"HIDAD","nome":"Hidratante Asad 200ml","cat":"Cosméticos e Body Splash","marca":"Sem marca","genero":"Unissex","preco":"250.00"},
-{"sku":"HARB1","nome":"Hidratante Amber Romance 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"ESF02","nome":"Esfoliante Tree Hut Vitamin C 510g","cat":"Cosméticos e Body Splash","marca":"Tree Hut","genero":"Unissex","preco":"150.00"},
-{"sku":"THTM","nome":"Esfoliante Tree Hut Tropical Mango 510g","cat":"Cosméticos e Body Splash","marca":"Tree Hut","genero":"Unissex","preco":"150.00"},
-{"sku":"THST","nome":"Esfoliante Tree Hut Strawberry 510g","cat":"Cosméticos e Body Splash","marca":"Tree Hut","genero":"Unissex","preco":"150.00"},
-{"sku":"THRS","nome":"Esfoliante Tree Hut Rainbow Sherbet 510g","cat":"Cosméticos e Body Splash","marca":"Tree Hut","genero":"Unissex","preco":"150.00"},
-{"sku":"THJB","nome":"Esfoliante Tree Hut Jelly Bear 510g","cat":"Cosméticos e Body Splash","marca":"Tree Hut","genero":"Unissex","preco":"150.00"},
-{"sku":"THEB","nome":"Esfoliante Tree Hut Exotic Bloom 510g","cat":"Cosméticos e Body Splash","marca":"Tree Hut","genero":"Unissex","preco":"150.00"},
-{"sku":"THET","nome":"Esfoliante Tree Hut Electric Beach 510g","cat":"Cosméticos e Body Splash","marca":"Tree Hut","genero":"Unissex","preco":"150.00"},
-{"sku":"THCC","nome":"Esfoliante Tree Hut Cotton Candy 510g","cat":"Cosméticos e Body Splash","marca":"Tree Hut","genero":"Unissex","preco":"150.00"},
-{"sku":"THBL","nome":"Esfoliante Tree Hut Blue Lagoon 510g","cat":"Cosméticos e Body Splash","marca":"Tree Hut","genero":"Unissex","preco":"150.00"},
-{"sku":"ESF01","nome":"Esfoliante Aloe Water & Hibiscus 368g VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"120.00"},
-{"sku":"KSI02","nome":"Conjunto Moletom Infantil Brooksfield 14","cat":"Roupas Unissex","marca":"Brooksfield","genero":"Unissex","preco":"300.00"},
-{"sku":"KSINF","nome":"Conjunto Moletom Infantil Brooksfield 12","cat":"Roupas Unissex","marca":"Brooksfield","genero":"Unissex","preco":"300.00"},
-{"sku":"7001","nome":"Conjunto Moletom EA7 Preto","cat":"Roupas Unissex","marca":"Armani","genero":"Unissex","preco":"1600.00"},
-{"sku":"CMAXV","nome":"Conjunto Moletom Armani Exchange G","cat":"Roupas Unissex","marca":"Armani","genero":"Unissex","preco":"550.00"},
-{"sku":"CFEA7","nome":"Conjunto Feminino EA7 M","cat":"Roupas Femininas","marca":"Armani","genero":"Feminino","preco":"800.00"},
-{"sku":"L16M","nome":"Camiseta Lacoste Rolex Azul Marinho","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"400.00"},
-{"sku":"L24M","nome":"Camiseta Lacoste Worldwide Rosa","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"250.00"},
-{"sku":"05505-1","nome":"Camiseta Lacoste Tennis Heritage Branca","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"400.00"},
-{"sku":"LSW9-1","nome":"Camiseta Lacoste Sportwear","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"270.00"},
-{"sku":"LS11","nome":"Camiseta Lacoste Sport Lilás","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"450.00"},
-{"sku":"LSE2-1","nome":"Camiseta Lacoste Sport Emborrachada","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"280.00"},
-{"sku":"LCSP-1","nome":"Camiseta Lacoste Sport","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"300.00"},
-{"sku":"L22L","nome":"Camiseta Lacoste Set Cinza","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"250.00"},
-{"sku":"LSG7","nome":"Camiseta Lacoste Série Gold 7","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"320.00"},
-{"sku":"L23L","nome":"Camiseta Lacoste Roland Garros","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"350.00"},
-{"sku":"QRT-1","nome":"Camiseta Lacoste Quadra 26","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"CLPQ-1","nome":"Camiseta Lacoste Paris Quadra","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"L13XL","nome":"Camiseta Lacoste Paris Branca 6","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"350.00"},
-{"sku":"7539-1","nome":"Camiseta Lacoste Novak","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"NGLL-1","nome":"Camiseta Lacoste Nome Gola","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"350.00"},
-{"sku":"L29XL","nome":"Camiseta Lacoste Monograma Preta","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"400.00"},
-{"sku":"CLL6-10","nome":"Camiseta Lacoste Listra","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"350.00"},
-{"sku":"L20L","nome":"Camiseta Lacoste Heritage Marrom","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"380.00"},
-{"sku":"L30XL","nome":"Camiseta Lacoste Heritage Azul","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"350.00"},
-{"sku":"CMLHRT-1","nome":"Camiseta Lacoste Heritage","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"320.00"},
-{"sku":"CLCT8-1","nome":"Camiseta Lacoste Escrita","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"300.00"},
-{"sku":"CLT19-1","nome":"Camiseta Lacoste Emb Detalhe Costas","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"350.00"},
-{"sku":"L18S","nome":"Camiseta Lacoste Djokovic Azul","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"250.00"},
-{"sku":"L27XL-1","nome":"Camiseta Lacoste Daniil","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"400.00"},
-{"sku":"CLCRC","nome":"Camiseta Lacoste Croco Roxo 4","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"400.00"},
-{"sku":"L28XL","nome":"Camiseta Lacoste Club Branca","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"400.00"},
-{"sku":"RQT00-1","nome":"Camiseta Lacoste Branca Raquete","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"CLT14-1","nome":"Camiseta Lacoste Branca Croco Azul","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"350.00"},
-{"sku":"CRC9","nome":"Camiseta Lacoste Branca Croco 9","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"300.00"},
-{"sku":"CLB10-1","nome":"Camiseta Lacoste Big Croc","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"300.00"},
-{"sku":"CM025","nome":"Camiseta Lacoste Azul 4","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"270.00"},
-{"sku":"C3XL","nome":"Camiseta Hugo Boss Branca 3XL","cat":"Roupas Unissex","marca":"Sem marca","genero":"Unissex","preco":"300.00"},
-{"sku":"GV3M","nome":"Camiseta Givenchy Vermelha","cat":"Roupas Unissex","marca":"Sem marca","genero":"Unissex","preco":"500.00"},
-{"sku":"GVBL","nome":"Camiseta Givenchy Branca","cat":"Roupas Unissex","marca":"Sem marca","genero":"Unissex","preco":"500.00"},
-{"sku":"CGV-1","nome":"Camiseta Givenchy","cat":"Roupas Unissex","marca":"Sem marca","genero":"Unissex","preco":"500.00"},
-{"sku":"CEPA-1","nome":"Camiseta Emporio Armani Basica Preta","cat":"Roupas Unissex","marca":"Armani","genero":"Unissex","preco":"250.00"},
-{"sku":"18AXL","nome":"Camiseta Emporio Armani Azul Marinho XL","cat":"Roupas Unissex","marca":"Armani","genero":"Unissex","preco":"500.00"},
-{"sku":"CEA7V","nome":"Camiseta EA7 Vermelha G","cat":"Roupas Unissex","marca":"Armani","genero":"Unissex","preco":"450.00"},
-{"sku":"CDS","nome":"Camiseta Diesel Branca","cat":"Roupas Unissex","marca":"Diesel","genero":"Unissex","preco":"400.00"},
-{"sku":"DST-1","nome":"Camiseta Diesel","cat":"Roupas Unissex","marca":"Diesel","genero":"Unissex","preco":"500.00"},
-{"sku":"CD1-1","nome":"Camiseta Diesel","cat":"Roupas Unissex","marca":"Diesel","genero":"Unissex","preco":"400.00"},
-{"sku":"BFE8","nome":"Camiseta Brooksfield Estampada P","cat":"Roupas Unissex","marca":"Brooksfield","genero":"Unissex","preco":"150.00"},
-{"sku":"BEM6","nome":"Camiseta Brooksfield Estampada M","cat":"Roupas Unissex","marca":"Brooksfield","genero":"Unissex","preco":"150.00"},
-{"sku":"BKT8-5","nome":"Camiseta Brooksfield Torino","cat":"Roupas Unissex","marca":"Brooksfield","genero":"Unissex","preco":"150.00"},
-{"sku":"BKPR-1","nome":"Camiseta Brooksfield Pima","cat":"Roupas Unissex","marca":"Brooksfield","genero":"Unissex","preco":"200.00"},
-{"sku":"BO24","nome":"Camiseta Brooksfield OVER M","cat":"Roupas Unissex","marca":"Brooksfield","genero":"Unissex","preco":"170.00"},
-{"sku":"CBM00-1","nome":"Camiseta Balmain","cat":"Roupas Unissex","marca":"Balmain","genero":"Unissex","preco":"1800.00"},
-{"sku":"CMLOF","nome":"Calça Moletom Lacoste Off White 4","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"450.00"},
-{"sku":"CMEA7","nome":"Calça Moletom EA7 G","cat":"Roupas Unissex","marca":"Armani","genero":"Unissex","preco":"300.00"},
-{"sku":"CLS0-1","nome":"Calça Lacoste Sport","cat":"Roupas Unissex","marca":"Lacoste","genero":"Unissex","preco":"500.00"},
-{"sku":"BLBCP","nome":"Boné Lacoste Big Croc Fita de Couro Preto","cat":"Bonés e Acessórios","marca":"Lacoste","genero":"Unissex","preco":"220.00"},
-{"sku":"BLBCA","nome":"Boné Lacoste Big Croc Fita de Couro Azul Marinho","cat":"Bonés e Acessórios","marca":"Lacoste","genero":"Unissex","preco":"220.00"},
-{"sku":"BNARP","nome":"Boné Lacoste Aba Reta Preto","cat":"Bonés e Acessórios","marca":"Lacoste","genero":"Unissex","preco":"270.00"},
-{"sku":"BNARB","nome":"Boné Lacoste Aba Reta Branco","cat":"Bonés e Acessórios","marca":"Lacoste","genero":"Unissex","preco":"270.00"},
-{"sku":"BL26B","nome":"Boné Lacoste Sport 2026 Branco","cat":"Bonés e Acessórios","marca":"Lacoste","genero":"Unissex","preco":"450.00"},
-{"sku":"BLS26","nome":"Boné Lacoste Sport 2026 Azul Marinho","cat":"Bonés e Acessórios","marca":"Lacoste","genero":"Unissex","preco":"450.00"},
-{"sku":"BLLAM","nome":"Boné Lacoste L Azul Marinho","cat":"Bonés e Acessórios","marca":"Lacoste","genero":"Unissex","preco":"380.00"},
-{"sku":"BLDJA","nome":"Boné Lacoste Djokovic Azul Marinho","cat":"Bonés e Acessórios","marca":"Lacoste","genero":"Unissex","preco":"230.00"},
-{"sku":"BNLC2","nome":"Boné Lacoste Colorblock Azul Verde","cat":"Bonés e Acessórios","marca":"Lacoste","genero":"Unissex","preco":"400.00"},
-{"sku":"BNAXV","nome":"Boné Armani Exchange Vermelho","cat":"Bonés e Acessórios","marca":"Armani","genero":"Unissex","preco":"200.00"},
-{"sku":"BAXFV","nome":"Boné Armani Exchange Verde Musgo","cat":"Bonés e Acessórios","marca":"Armani","genero":"Unissex","preco":"350.00"},
-{"sku":"BOAXM","nome":"Boné Armani Exchange Azul Marinho","cat":"Bonés e Acessórios","marca":"Armani","genero":"Unissex","preco":"350.00"},
-{"sku":"BAXAV","nome":"Boné Armani Exchange Algodão Verde","cat":"Bonés e Acessórios","marca":"Armani","genero":"Unissex","preco":"200.00"},
-{"sku":"BSVPV","nome":"Body Splash Velvet Petals 250ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"BSSVV","nome":"Body Splash Sizzling Vanilla 250ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"BSRVS","nome":"Body Splash Romantic 250ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"BSPSV","nome":"Body Splash Pure Seduction 250ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"BSCCP","nome":"Body Splash Coconut Passion 250ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"BSCMR","nome":"Body Splash Coconut Milk Rose 236ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"BSBW3","nome":"Body Splash Butterfly 236ml BBW","cat":"Cosméticos e Body Splash","marca":"Bath & Body Works","genero":"Unissex","preco":"120.00"},
-{"sku":"BSVBV","nome":"Body Splash Bare Vanilla 250ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"BSVAK","nome":"Body Splash Aqua Kiss 250ml VS","cat":"Cosméticos e Body Splash","marca":"Victoria's Secret","genero":"Unissex","preco":"140.00"},
-{"sku":"PCD7-1","nome":"Bermuda Preta City Denim","cat":"Roupas Unissex","marca":"Sem marca","genero":"Unissex","preco":"130.00"}
+{"sku": "INTH0", "nome": "Hidratante In The Stars 236ml - BBW", "cat": "Cosméticos e Body Splash", "marca": "Bath & Body Works", "genero": "Unissex", "preco": "120.00", "estoque": 1, "status": "pendente"},
+{"sku": "HDWAR", "nome": "Hidratante Warm Vanilla Sugar 236ml - BBW", "cat": "Cosméticos e Body Splash", "marca": "Bath & Body Works", "genero": "Unissex", "preco": "120.00", "estoque": 1, "status": "pendente"},
+{"sku": "HWINR", "nome": "Hidratante Winterberry Wonder 226g - BBW", "cat": "Cosméticos e Body Splash", "marca": "Bath & Body Works", "genero": "Unissex", "preco": "120.00", "estoque": 1, "status": "pendente"},
+{"sku": "MANT2", "nome": "Manteiga Corporal Bahamas 185g - BBW", "cat": "Cosméticos e Body Splash", "marca": "Bath & Body Works", "genero": "Unissex", "preco": "150.00", "estoque": 2, "status": "pendente"},
+{"sku": "THST", "nome": "Esfoliante Tree Hut Strawberry 510g", "cat": "Cosméticos e Body Splash", "marca": "Sem marca", "genero": "Unissex", "preco": "150.00", "estoque": 4, "status": "pendente"},
+{"sku": "BSCMR", "nome": "Body Splash Coconut Milk Rose 236ml - VS", "cat": "Cosméticos e Body Splash", "marca": "Victoria's Secret", "genero": "Unissex", "preco": "140.00", "estoque": 1, "status": "pendente"},
+{"sku": "BSCCP", "nome": "Body Splash Coconut Passion 250ml - VS", "cat": "Cosméticos e Body Splash", "marca": "Victoria's Secret", "genero": "Unissex", "preco": "140.00", "estoque": 2, "status": "pendente"},
+{"sku": "BSSVV", "nome": "Body Splash Sizzling Vanilla 250ml - VS", "cat": "Cosméticos e Body Splash", "marca": "Victoria's Secret", "genero": "Unissex", "preco": "140.00", "estoque": 1, "status": "pendente"},
+{"sku": "BSVPV", "nome": "Body Splash Velvet Petals 250ml - VS", "cat": "Cosméticos e Body Splash", "marca": "Victoria's Secret", "genero": "Unissex", "preco": "140.00", "estoque": 1, "status": "pendente"},
+{"sku": "ESF01", "nome": "Esfoliante Aloe Water & Hibiscus 368g - VS", "cat": "Cosméticos e Body Splash", "marca": "Victoria's Secret", "genero": "Unissex", "preco": "120.00", "estoque": 1, "status": "pendente"},
+{"sku": "HARB1", "nome": "Hidratante Amber Romance 236ml - VS", "cat": "Cosméticos e Body Splash", "marca": "Victoria's Secret", "genero": "Unissex", "preco": "140.00", "estoque": 1, "status": "pendente"},
+{"sku": "HBRS1", "nome": "Hidratante Bare Vanilla Shimmer 236ml - VS", "cat": "Cosméticos e Body Splash", "marca": "Victoria's Secret", "genero": "Unissex", "preco": "140.00", "estoque": 2, "status": "pendente"},
+{"sku": "HPTBZ", "nome": "Hidratante Petal Buzz 236ml - VS", "cat": "Cosméticos e Body Splash", "marca": "Victoria's Secret", "genero": "Unissex", "preco": "140.00", "estoque": 3, "status": "pendente"},
+{"sku": "HVL01", "nome": "Hidratante Velvet Petals 236ml - VS", "cat": "Cosméticos e Body Splash", "marca": "Victoria's Secret", "genero": "Unissex", "preco": "140.00", "estoque": 2, "status": "pendente"},
+{"sku": "HVL02", "nome": "Hidratante Velvet Petals Starlit 236ml - VS", "cat": "Cosméticos e Body Splash", "marca": "Victoria's Secret", "genero": "Unissex", "preco": "140.00", "estoque": 1, "status": "pendente"},
+{"sku": "27XXL", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "26XXL", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "25AXL", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "AX24M", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "23AXL", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "22AXL", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "AX17M", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "AX16L", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "AX5XL", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "350.00", "estoque": 1, "status": "pendente"},
+{"sku": "AXXXL", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "AX13L", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "300.00", "estoque": 1, "status": "pendente"},
+{"sku": "AX0XL", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "CAX10-1", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "CMAX9-1", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 2, "status": "pendente"},
+{"sku": "CAX08-1", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "350.00", "estoque": 2, "status": "pendente"},
+{"sku": "CAX07-1", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "350.00", "estoque": 3, "status": "pendente"},
+{"sku": "CAX06-1", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 4, "status": "pendente"},
+{"sku": "CAX05-1", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 3, "status": "pendente"},
+{"sku": "CAX04-1", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 2, "status": "pendente"},
+{"sku": "CAX03-1", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 2, "status": "pendente"},
+{"sku": "CAX02-1", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 2, "status": "pendente"},
+{"sku": "CAX01-1", "nome": "Camiseta Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 3, "status": "pendente"},
+{"sku": "20XXL", "nome": "Camiseta Armani Exchange Aguia XXL", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "350.00", "estoque": 1, "status": "pendente"},
+{"sku": "18AXL", "nome": "Camiseta Emporio Armani Azul Marinho XL", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "500.00", "estoque": 1, "status": "pendente"},
+{"sku": "CEPA-1", "nome": "Camiseta Emporio Armani Basica Preta", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "250.00", "estoque": 2, "status": "pendente"},
+{"sku": "CMAXV", "nome": "Conjunto Moletom Armani Exchange G", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "550.00", "estoque": 2, "status": "pendente"},
+{"sku": "MTAXV", "nome": "Moletom Armani Exchange zíper- Vermelho -XL", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "450.00", "estoque": 1, "status": "pendente"},
+{"sku": "MTEA1-1", "nome": "Moletom Canguru Emporio Armani", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "850.00", "estoque": 8, "status": "pendente"},
+{"sku": "GCAX", "nome": "Moletom Gola Careca Armani Exchange", "cat": "Roupas Unissex", "marca": "Armani", "genero": "Unissex", "preco": "400.00", "estoque": 2, "status": "pendente"},
+{"sku": "CBM00-1", "nome": "Camiseta Balmain", "cat": "Roupas Unissex", "marca": "Balmain", "genero": "Unissex", "preco": "1,800.00", "estoque": 4, "status": "pendente"},
+{"sku": "CBFB-1", "nome": "Camiseta Brooksfield Básica", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "150.00", "estoque": 24, "status": "pendente"},
+{"sku": "CBFE-1", "nome": "Camiseta Brooksfield Estampada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "150.00", "estoque": 12, "status": "pendente"},
+{"sku": "BE21-1", "nome": "Camiseta Brooksfield Estampada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "150.00", "estoque": 2, "status": "pendente"},
+{"sku": "CB19-1", "nome": "Camiseta Brooksfield Estampada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "150.00", "estoque": 3, "status": "pendente"},
+{"sku": "CBE7-1", "nome": "Camiseta Brooksfield Estampada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "150.00", "estoque": 10, "status": "pendente"},
+{"sku": "CBF5-1", "nome": "Camiseta Brooksfield Estampada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "150.00", "estoque": 2, "status": "pendente"},
+{"sku": "CBK5-1", "nome": "Camiseta Brooksfield Estampada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "150.00", "estoque": 13, "status": "pendente"},
+{"sku": "CBK3-1", "nome": "Camiseta Brooksfield Estampada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "150.00", "estoque": 11, "status": "pendente"},
+{"sku": "CBK1-1", "nome": "Camiseta Brooksfield Estampada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "150.00", "estoque": 4, "status": "pendente"},
+{"sku": "BEM6", "nome": "Camiseta Brooksfield Estampada M", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "150.00", "estoque": 2, "status": "pendente"},
+{"sku": "BEP8", "nome": "Camiseta Brooksfield Estampada P", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "150.00", "estoque": 1, "status": "pendente"},
+{"sku": "BL21-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 4, "status": "pendente"},
+{"sku": "BL20-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 4, "status": "pendente"},
+{"sku": "BL19-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 3, "status": "pendente"},
+{"sku": "BL18-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 3, "status": "pendente"},
+{"sku": "BL17-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 2, "status": "pendente"},
+{"sku": "BL16-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 2, "status": "pendente"},
+{"sku": "BL15-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 4, "status": "pendente"},
+{"sku": "BL14-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 4, "status": "pendente"},
+{"sku": "BL13-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 3, "status": "pendente"},
+{"sku": "BL10-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 7, "status": "pendente"},
+{"sku": "BKL9-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 2, "status": "pendente"},
+{"sku": "BKL8-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "BKL7-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 3, "status": "pendente"},
+{"sku": "BKL6-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 4, "status": "pendente"},
+{"sku": "BKL5-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 4, "status": "pendente"},
+{"sku": "BKL4-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 2, "status": "pendente"},
+{"sku": "BKL3-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 11, "status": "pendente"},
+{"sku": "BKL1-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 6, "status": "pendente"},
+{"sku": "BL02-1", "nome": "Camiseta Brooksfield Listrada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 7, "status": "pendente"},
+{"sku": "BL12", "nome": "Camiseta Brooksfield Listrada G", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "BL11", "nome": "Camiseta Brooksfield Listrada G", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "BO24", "nome": "Camiseta Brooksfield OVER-M", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "170.00", "estoque": 1, "status": "pendente"},
+{"sku": "BKPR-1", "nome": "Camiseta Brooksfield Pima", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "200.00", "estoque": 44, "status": "pendente"},
+{"sku": "BKT8-5", "nome": "Camiseta Brooksfield Torino", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "150.00", "estoque": 3, "status": "pendente"},
+{"sku": "BFEB-1", "nome": "Camiseta Brooksfild Estampada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "0.00", "estoque": 1, "status": "pendente"},
+{"sku": "KSI02", "nome": "Conjunto Moletom Infantil Brooksfield- 14", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "300.00", "estoque": 1, "status": "pendente"},
+{"sku": "MTAX0-1", "nome": "Moletom AX Preto Águia Dourada", "cat": "Roupas Unissex", "marca": "Brooksfield", "genero": "Unissex", "preco": "650.00", "estoque": 3, "status": "pendente"},
+{"sku": "DST-1", "nome": "Camiseta Diesel", "cat": "Roupas Unissex", "marca": "Diesel", "genero": "Unissex", "preco": "500.00", "estoque": 6, "status": "pendente"},
+{"sku": "CD1-1", "nome": "Camiseta Diesel", "cat": "Roupas Unissex", "marca": "Diesel", "genero": "Unissex", "preco": "400.00", "estoque": 8, "status": "pendente"},
+{"sku": "CDS", "nome": "Camiseta Diesel Branca", "cat": "Roupas Unissex", "marca": "Diesel", "genero": "Unissex", "preco": "400.00", "estoque": 2, "status": "pendente"},
+{"sku": "JQD-1", "nome": "Jaqueta Diesel", "cat": "Roupas Unissex", "marca": "Diesel", "genero": "Unissex", "preco": "2,200.00", "estoque": 4, "status": "pendente"},
+{"sku": "CMEA7", "nome": "Calça Moletom EA7 G", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "300.00", "estoque": 1, "status": "pendente"},
+{"sku": "CMLOF", "nome": "Calça Moletom Lacoste Off White 4", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "450.00", "estoque": 1, "status": "pendente"},
+{"sku": "LCT5-5", "nome": "Camiseta Lacoste", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "270.00", "estoque": 6, "status": "pendente"},
+{"sku": "LT4-4", "nome": "Camiseta Lacoste", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "280.00", "estoque": 8, "status": "pendente"},
+{"sku": "CL1-1", "nome": "Camiseta Lacoste", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "270.00", "estoque": 16, "status": "pendente"},
+{"sku": "L26M", "nome": "Camiseta Lacoste", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "280.00", "estoque": 1, "status": "pendente"},
+{"sku": "L21L-1", "nome": "Camiseta Lacoste", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "350.00", "estoque": 2, "status": "pendente"},
+{"sku": "CLCT7-1", "nome": "Camiseta Lacoste 2026", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "400.00", "estoque": 8, "status": "pendente"},
+{"sku": "CLCT3-1", "nome": "Camiseta Lacoste 2026", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "400.00", "estoque": 4, "status": "pendente"},
+{"sku": "17XL", "nome": "Camiseta Lacoste 2026", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "400.00", "estoque": 1, "status": "pendente"},
+{"sku": "CLC12-1", "nome": "Camiseta Lacoste 26", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "380.00", "estoque": 5, "status": "pendente"},
+{"sku": "CM025", "nome": "Camiseta Lacoste Azul 4", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "270.00", "estoque": 1, "status": "pendente"},
+{"sku": "CLB10-1", "nome": "Camiseta Lacoste Big Croc", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "300.00", "estoque": 6, "status": "pendente"},
+{"sku": "CRC9", "nome": "Camiseta Lacoste Branca Croco 9", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "300.00", "estoque": 1, "status": "pendente"},
+{"sku": "CLT14-1", "nome": "Camiseta Lacoste Branca Croco Azul", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "350.00", "estoque": 2, "status": "pendente"},
+{"sku": "RQT00-1", "nome": "Camiseta Lacoste Branca Raquete", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 5, "status": "pendente"},
+{"sku": "L28XL", "nome": "Camiseta Lacoste Club Branca", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "400.00", "estoque": 1, "status": "pendente"},
+{"sku": "CLCRC", "nome": "Camiseta Lacoste Croco Roxo 4", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "400.00", "estoque": 1, "status": "pendente"},
+{"sku": "L27XL-1", "nome": "Camiseta Lacoste Daniil", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "400.00", "estoque": 2, "status": "pendente"},
+{"sku": "CLT19-1", "nome": "Camiseta Lacoste Emb Detalhe Costas", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "350.00", "estoque": 1, "status": "pendente"},
+{"sku": "CLCT8-1", "nome": "Camiseta Lacoste Escrita", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "300.00", "estoque": 5, "status": "pendente"},
+{"sku": "CMLHRT-1", "nome": "Camiseta Lacoste Heritage", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "320.00", "estoque": 1, "status": "pendente"},
+{"sku": "L30XL", "nome": "Camiseta Lacoste Heritage Azul", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "350.00", "estoque": 1, "status": "pendente"},
+{"sku": "L20L", "nome": "Camiseta Lacoste Heritage Marrom", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "380.00", "estoque": 1, "status": "pendente"},
+{"sku": "CLL6-10", "nome": "Camiseta Lacoste Listra", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "350.00", "estoque": 3, "status": "pendente"},
+{"sku": "H2831-1", "nome": "Camiseta Lacoste Monograma", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "0.00", "estoque": 1, "status": "pendente"},
+{"sku": "NGLL-1", "nome": "Camiseta Lacoste Nome Gola", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "350.00", "estoque": 2, "status": "pendente"},
+{"sku": "7539-1", "nome": "Camiseta Lacoste Novak", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 3, "status": "pendente"},
+{"sku": "5912-1", "nome": "Camiseta Lacoste Paris 2026", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "0.00", "estoque": 2, "status": "pendente"},
+{"sku": "L13XL", "nome": "Camiseta Lacoste Paris Branca 6", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "350.00", "estoque": 2, "status": "pendente"},
+{"sku": "CLPQ-1", "nome": "Camiseta Lacoste Paris Quadra", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 13, "status": "pendente"},
+{"sku": "QRT-1", "nome": "Camiseta Lacoste Quadra 26", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 4, "status": "pendente"},
+{"sku": "L23L", "nome": "Camiseta Lacoste Roland Garros", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "350.00", "estoque": 1, "status": "pendente"},
+{"sku": "L22L", "nome": "Camiseta Lacoste Set Cinza", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "LCSP-1", "nome": "Camiseta Lacoste Sport", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "300.00", "estoque": 3, "status": "pendente"},
+{"sku": "LSE2-1", "nome": "Camiseta Lacoste Sport Emborrachada", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "280.00", "estoque": 23, "status": "pendente"},
+{"sku": "LS11", "nome": "Camiseta Lacoste Sport Lilás", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "450.00", "estoque": 2, "status": "pendente"},
+{"sku": "LSW9-1", "nome": "Camiseta Lacoste Sportwear", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "270.00", "estoque": 2, "status": "pendente"},
+{"sku": "L24M", "nome": "Camiseta Lacoste Worldwide Rosa", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "250.00", "estoque": 1, "status": "pendente"},
+{"sku": "JLCST-1", "nome": "Jaqueta Lacoste Sport", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "750.00", "estoque": 2, "status": "pendente"},
+{"sku": "LGC-1", "nome": "Moletom Lacoste Basico Gola Careca", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "430.00", "estoque": 7, "status": "pendente"},
+{"sku": "ML86", "nome": "Moletom Lacoste Canguru Azul Marinho", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 1, "status": "pendente"},
+{"sku": "MCZ", "nome": "Moletom Lacoste Canguru Cinza", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "550.00", "estoque": 1, "status": "pendente"},
+{"sku": "MTL01-1", "nome": "Moletom Lacoste Canguru Escrita", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "550.00", "estoque": 10, "status": "pendente"},
+{"sku": "MLE-1", "nome": "Moletom Lacoste GC Branco", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 3, "status": "pendente"},
+{"sku": "MLG9", "nome": "Moletom Lacoste Gola Careca AM 9", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "400.00", "estoque": 1, "status": "pendente"},
+{"sku": "MLC00", "nome": "Moletom Lacoste Gola Careca Cinza 8", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "400.00", "estoque": 1, "status": "pendente"},
+{"sku": "MZZ", "nome": "Moletom Lacoste Meio Ziper 8", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "700.00", "estoque": 1, "status": "pendente"},
+{"sku": "H0801", "nome": "Moletom Lacoste Preto Croco 5", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 1, "status": "pendente"},
+{"sku": "MTLTC", "nome": "Moletom Lacoste Tricolor- 4", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "450.00", "estoque": 1, "status": "pendente"},
+{"sku": "GIZ4", "nome": "Polo Lacoste Basica Cinza Giz 4", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "300.00", "estoque": 1, "status": "pendente"},
+{"sku": "DJG1", "nome": "Polo Lacoste Djokovic Gold", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "650.00", "estoque": 1, "status": "pendente"},
+{"sku": "PLRL", "nome": "Polo Lacoste Roxa", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 1, "status": "pendente"},
+{"sku": "LLLS", "nome": "Polo Lacoste Sport Lisa Lilás", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "400.00", "estoque": 1, "status": "pendente"},
+{"sku": "PLSRR", "nome": "Polo Lacoste Sport Roxa 5", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "550.00", "estoque": 1, "status": "pendente"},
+{"sku": "SVRD8", "nome": "Polo Lacoste Sport Verde 8", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "600.00", "estoque": 1, "status": "pendente"},
+{"sku": "PLTW1", "nome": "Polo Lacoste Worldwide", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "300.00", "estoque": 2, "status": "pendente"},
+{"sku": "010XL", "nome": "Shorts Lacoste Moletom- XL", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 1, "status": "pendente"},
+{"sku": "011XL", "nome": "Shorts Lacoste Praia Verde Militar XL", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "400.00", "estoque": 2, "status": "pendente"},
+{"sku": "S006M", "nome": "Shorts Lacoste Sport Azul", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "450.00", "estoque": 0, "status": "pendente"},
+{"sku": "MTNKT", "nome": "Moletom Nike Tech Fleece Cinza- G", "cat": "Roupas Unissex", "marca": "Nike", "genero": "Unissex", "preco": "750.00", "estoque": 2, "status": "pendente"},
+{"sku": "PCD7-1", "nome": "Bermuda Preta City Denin", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "130.00", "estoque": 2, "status": "pendente"},
+{"sku": "CAL19", "nome": "Calça Jeans Austin Club", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "CAL18", "nome": "Calça Jeans Austin Club", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "CAL16-1", "nome": "Calça Jeans Austin Club", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 2, "status": "pendente"},
+{"sku": "CAL22", "nome": "Calça Jeans Austin Club-40", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "CAL021", "nome": "Calça Jeans Austin Club-46", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "CAL26", "nome": "Calça Jeans City Denim-38", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "6002-1", "nome": "Calça Jeans City Denin", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 2, "status": "pendente"},
+{"sku": "6000-1", "nome": "Calça Jeans City Denin", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "CC02-1", "nome": "Calça Jeans City Denin", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 4, "status": "pendente"},
+{"sku": "CAL15-1", "nome": "Calça Jeans City Denin", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 5, "status": "pendente"},
+{"sku": "CAL14-1", "nome": "Calça Jeans City Denin", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 3, "status": "pendente"},
+{"sku": "CAL13-1", "nome": "Calça Jeans City Denin", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 4, "status": "pendente"},
+{"sku": "CAL10-1", "nome": "Calça Jeans City Denin", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 3, "status": "pendente"},
+{"sku": "002P-1", "nome": "Calça Jeans City Denin Plus Size", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "200.00", "estoque": 6, "status": "pendente"},
+{"sku": "CAL11-1", "nome": "Calça Jeans City Denin Plus Size", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "200.00", "estoque": 4, "status": "pendente"},
+{"sku": "CAL08-1", "nome": "Calça Jeans Jay & Jones", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 3, "status": "pendente"},
+{"sku": "CAL07-1", "nome": "Calça Jeans Jay & Jones", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 5, "status": "pendente"},
+{"sku": "CAL06-1", "nome": "Calça Jeans Jay & Jones", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 4, "status": "pendente"},
+{"sku": "CAL04-1", "nome": "Calça Jeans Jay & Jones", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 4, "status": "pendente"},
+{"sku": "CAL02-1", "nome": "Calça Jeans Jay & Jones", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 3, "status": "pendente"},
+{"sku": "CAL01-1", "nome": "Calça Jeans Jay & Jones", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 2, "status": "pendente"},
+{"sku": "CAL09-1", "nome": "Calça Jeans Jay & Jones Plus Size", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "200.00", "estoque": 3, "status": "pendente"},
+{"sku": "CAL05-1", "nome": "Calça Jeans Jay & Jones Plus Size", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "200.00", "estoque": 4, "status": "pendente"},
+{"sku": "CAL03-1", "nome": "Calça Jeans Jay & Jones Plus Size", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "200.00", "estoque": 2, "status": "pendente"},
+{"sku": "CAL30", "nome": "Calça jeans Austin Club -44", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "CAL023", "nome": "Calça jeans Austin Club-44", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "CAL020", "nome": "Calça jeans Austin Club-44", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "CAL28", "nome": "Calça jeans City Denim-38", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "CAL27", "nome": "Calça jeans City Denim-42", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "CAL29", "nome": "Calça jeans City Denim-46", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "CAL24", "nome": "Calça jeans Club Austin-42", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "160.00", "estoque": 1, "status": "pendente"},
+{"sku": "CAX19-1", "nome": "Camiseta AX AX AX", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "400.00", "estoque": 1, "status": "pendente"},
+{"sku": "CGV-1", "nome": "Camiseta Givenchy", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "500.00", "estoque": 3, "status": "pendente"},
+{"sku": "GVBL", "nome": "Camiseta Givenchy Branca", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "500.00", "estoque": 1, "status": "pendente"},
+{"sku": "GV3M", "nome": "Camiseta Givenchy Vermelha", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "500.00", "estoque": 1, "status": "pendente"},
+{"sku": "C3XL", "nome": "Camiseta Hugo Boss Branca- 3XL", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "300.00", "estoque": 1, "status": "pendente"},
+{"sku": "THBL", "nome": "Esfoliante Tree Hut Blue Lagoon 510g", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "150.00", "estoque": 1, "status": "pendente"},
+{"sku": "THCC", "nome": "Esfoliante Tree Hut Cotton Candy 510g", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "150.00", "estoque": 4, "status": "pendente"},
+{"sku": "THET", "nome": "Esfoliante Tree Hut Electric Beach 510g", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "150.00", "estoque": 1, "status": "pendente"},
+{"sku": "THJB", "nome": "Esfoliante Tree Hut Jelly Bear 510g", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "150.00", "estoque": 1, "status": "pendente"},
+{"sku": "THRS", "nome": "Esfoliante Tree Hut Rainbow Sherbet 510g", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "150.00", "estoque": 1, "status": "pendente"},
+{"sku": "THTM", "nome": "Esfoliante Tree Hut Tropical Mango 510g", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "150.00", "estoque": 1, "status": "pendente"},
+{"sku": "ESF02", "nome": "Esfoliante Tree Hut Vitamin C 510g", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "150.00", "estoque": 1, "status": "pendente"},
+{"sku": "MANTC", "nome": "Manteiga Corporal Coco Colada 240g - Tree Hut", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "150.00", "estoque": 2, "status": "pendente"},
+{"sku": "MTVC0", "nome": "Manteiga Corporal Vitamin C 240g - Tree Hut", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "150.00", "estoque": 1, "status": "pendente"},
+{"sku": "STHM", "nome": "Sabonete Tree Hut Watermelon 532ml", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Unissex", "preco": "150.00", "estoque": 1, "status": "pendente"},
+{"sku": "JTHV-1", "nome": "Jaqueta Tommy Hilfiger Velejador", "cat": "Roupas Unissex", "marca": "Tommy Hilfiger", "genero": "Unissex", "preco": "800.00", "estoque": 6, "status": "pendente"},
+{"sku": "083XL", "nome": "Short Lacoste Sport Tênis - Preto/Azul-3XL", "cat": "Tênis e Calçados", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 1, "status": "pendente"},
+{"sku": "NSHXP-1", "nome": "Nike Shox R4 Preto", "cat": "Tênis e Calçados", "marca": "Nike", "genero": "Unissex", "preco": "1,000.00", "estoque": 4, "status": "pendente"},
+{"sku": "NSRBV", "nome": "Nike Shox R4-Branco/Vermelho 36", "cat": "Tênis e Calçados", "marca": "Nike", "genero": "Unissex", "preco": "1,000.00", "estoque": 1, "status": "pendente"},
+{"sku": "NR4BV", "nome": "Nike Shox R4-Dourado/Branco 38", "cat": "Tênis e Calçados", "marca": "Nike", "genero": "Unissex", "preco": "1,000.00", "estoque": 1, "status": "pendente"},
+{"sku": "NTLBP-37", "nome": "Nike Shox TL-Branco/Prata", "cat": "Tênis e Calçados", "marca": "Nike", "genero": "Unissex", "preco": "1,200.00", "estoque": 2, "status": "pendente"},
+{"sku": "NSTPA", "nome": "Nike Shox TL-Preto/Amarelo 41", "cat": "Tênis e Calçados", "marca": "Nike", "genero": "Unissex", "preco": "1,200.00", "estoque": 1, "status": "pendente"},
+{"sku": "BAXAV", "nome": "Boné Armani Exchange Algodão Verde", "cat": "Bonés e Acessórios", "marca": "Armani", "genero": "Unissex", "preco": "200.00", "estoque": 4, "status": "trabalhado"},
+{"sku": "BAXFV", "nome": "Boné Armani Exchange Cinza AX Logo Bordado Unissex", "cat": "Bonés e Acessórios", "marca": "Armani", "genero": "Unissex", "preco": "350.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "BNAXV", "nome": "Boné Armani Exchange Vermelho Milano New York", "cat": "Bonés e Acessórios", "marca": "Armani", "genero": "Unissex", "preco": "200.00", "estoque": 3, "status": "trabalhado"},
+{"sku": "BNARB", "nome": "Boné Lacoste Aba Reta Branco", "cat": "Bonés e Acessórios", "marca": "Lacoste", "genero": "Unissex", "preco": "270.00", "estoque": 12, "status": "trabalhado"},
+{"sku": "BNARP", "nome": "Boné Lacoste Sport Aba Reta Preto e Amarelo Neon", "cat": "Bonés e Acessórios", "marca": "Lacoste", "genero": "Unissex", "preco": "270.00", "estoque": 7, "status": "trabalhado"},
+{"sku": "BLBCA", "nome": "Boné Lacoste Big Croc Fita de Couro Azul Marinho", "cat": "Bonés e Acessórios", "marca": "Lacoste", "genero": "Unissex", "preco": "220.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "BLBCP", "nome": "Boné Lacoste Big Croc Fita de Couro Preto", "cat": "Bonés e Acessórios", "marca": "Lacoste", "genero": "Unissex", "preco": "220.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "BNLC2", "nome": "Boné Lacoste Colorblock Azul Verde", "cat": "Bonés e Acessórios", "marca": "Lacoste", "genero": "Unissex", "preco": "400.00", "estoque": 16, "status": "trabalhado"},
+{"sku": "BLDJA", "nome": "Boné Lacoste Djokovic Azul Marinho", "cat": "Bonés e Acessórios", "marca": "Lacoste", "genero": "Unissex", "preco": "230.00", "estoque": 7, "status": "trabalhado"},
+{"sku": "BLLAM", "nome": "Boné Lacoste L Azul Marinho", "cat": "Bonés e Acessórios", "marca": "Lacoste", "genero": "Unissex", "preco": "380.00", "estoque": 2, "status": "trabalhado"},
+{"sku": "BLS26", "nome": "Boné Lacoste Sport 2026 Azul Marinho", "cat": "Bonés e Acessórios", "marca": "Lacoste", "genero": "Unissex", "preco": "450.00", "estoque": 2, "status": "trabalhado"},
+{"sku": "BL26B", "nome": "Boné Lacoste Sport 2026 Branco", "cat": "Bonés e Acessórios", "marca": "Lacoste", "genero": "Unissex", "preco": "450.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "VEW01", "nome": "Vela Aromatizadora Strawberry Pound Cake 227g - Bath & Body Works", "cat": "Cosméticos e Body Splash", "marca": "Bath & Body Works", "genero": "Unissex", "preco": "100.00", "estoque": 2, "status": "trabalhado"},
+{"sku": "PRANS", "nome": "Perfume Al Noble Safeer 100ml Lattafa Eau de Parfum Unissex", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "280.00", "estoque": 2, "status": "trabalhado"},
+{"sku": "PAAAI", "nome": "Perfume Ameer Al Arab Imperium 100ml Eau de Parfum Unissex", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "180.00", "estoque": 6, "status": "trabalhado"},
+{"sku": "PAAA", "nome": "Perfume Amer Al Arab Privé Rose 100ml Eau de Parfum", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "180.00", "estoque": 3, "status": "trabalhado"},
+{"sku": "PRAA", "nome": "Perfume Ana Abiyedh Rouge 60ml Lattafa Unissex Oriental Amadeirado", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "220.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "PMEDP", "nome": "Perfume Milano Eau de Parfum 100ml - Stella Dustin", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "400.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "PRMP", "nome": "Perfume Montale Paris Golden Aoud Eau de Parfum 100ml", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "600.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "PROFG", "nome": "Perfume Oud for Glory 100ml Lattafa - Eau de Parfum Unissex", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "280.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "PRPTP", "nome": "Perfume Pink To Pink Ajwad 60ml Lattafa Unissex", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "220.00", "estoque": 3, "status": "trabalhado"},
+{"sku": "PRPRL", "nome": "Perfume Polo Ralph Lauren 67 Eau de Parfum Masculino 75ml", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "350.00", "estoque": 7, "status": "trabalhado"},
+{"sku": "PRSAW", "nome": "Perfume Sabah Al Ward Eau de Parfum 100ml Feminino", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "250.00", "estoque": 8, "status": "trabalhado"},
+{"sku": "PRKS", "nome": "Perfume Kyoto Selective Grandeur Eau de Parfum 100ml", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "300.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "VEE", "nome": "Perfume Versace Eros Energy 100ml Eau de Parfum Masculino Importado Original", "cat": "Perfumes", "marca": "Versace", "genero": "Unissex", "preco": "600.00", "estoque": 2, "status": "trabalhado"},
+{"sku": "VRF", "nome": "Versace Eros Flame Eau de Parfum 100ml Masculino Importado Original", "cat": "Perfumes", "marca": "Versace", "genero": "Unissex", "preco": "600.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "AXFM0", "nome": "Moletom Armani Exchange Feminino Branco AX Icon Marble M", "cat": "Roupas Femininas", "marca": "Armani", "genero": "Feminino", "preco": "400.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "MAXF0", "nome": "Moletom Armani Exchange Feminino Preto Logo AX P", "cat": "Roupas Femininas", "marca": "Armani", "genero": "Feminino", "preco": "400.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "05XXL", "nome": "Shorts Lacoste Sport Azul-XXL", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "M012", "nome": "Shorts Lacoste Sport-Azul/M", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "CFEA7", "nome": "Conjunto Feminino EA7 Emporio Armani Preto e Dourado M", "cat": "Roupas Unissex", "marca": "Sem marca", "genero": "Feminino", "preco": "800.00", "estoque": 1, "status": "trabalhado"},
+{"sku": "TEPAB", "nome": "Tênis Emporio Armani Branco Unissex Premium", "cat": "Tênis e Calçados", "marca": "Armani", "genero": "Unissex", "preco": "1,200.00", "estoque": 0, "status": "trabalhado"},
+{"sku": "TNBLA", "nome": "Tênis Balmain Bicolor Branco Preto", "cat": "Tênis e Calçados", "marca": "Balmain", "genero": "Unissex", "preco": "3,200.00", "estoque": 0, "status": "trabalhado"},
+{"sku": "TGRWP-1", "nome": "Tênis Gucci Re-Web Prata Metálico Importado Original", "cat": "Tênis e Calçados", "marca": "Gucci", "genero": "Unissex", "preco": "3,000.00", "estoque": 2, "status": "trabalhado"},
+{"sku": "BOAXM", "nome": "Boné Armani Exchange Azul Marinho- AX", "cat": "Bonés e Acessórios", "marca": "Armani", "genero": "Unissex", "preco": "350.00", "estoque": 0, "status": "erro404"},
+{"sku": "PLAL", "nome": "Perfume Lacoste Original Parfum 100ml", "cat": "Perfumes", "marca": "Lacoste", "genero": "Unissex", "preco": "550.00", "estoque": 0, "status": "erro404"},
+{"sku": "PRAR", "nome": "Perfume Amber Rouge 80ml", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "500.00", "estoque": 0, "status": "erro404"},
+{"sku": "PRDPF", "nome": "Perfume Delilah pour Femme 100ml", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "250.00", "estoque": 0, "status": "erro404"},
+{"sku": "PRHAO", "nome": "Perfume Haramain amber Oud 120ml", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "500.00", "estoque": 0, "status": "erro404"},
+{"sku": "PRKP", "nome": "Perfume Lattafa Kids Play 75ml", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "200.00", "estoque": 0, "status": "erro404"},
+{"sku": "PSEDP", "nome": "Perfume Salvo Eau de Parfum 100ml", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "250.00", "estoque": 0, "status": "erro404"},
+{"sku": "PRSDR", "nome": "Perfume Souvernir Desert Rose 100ml", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "200.00", "estoque": 0, "status": "erro404"},
+{"sku": "PXJFF", "nome": "Perfume Xejorff Naxos 100ml", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "2,000.00", "estoque": 0, "status": "erro404"},
+{"sku": "PRYA", "nome": "Perfume Yara Tous 100ml", "cat": "Perfumes", "marca": "Sem marca", "genero": "Unissex", "preco": "200.00", "estoque": 0, "status": "erro404"},
+{"sku": "S007L", "nome": "Shorts Lacoste Sport-Azul/Vermelho/Branco- L", "cat": "Roupas Unissex", "marca": "Lacoste", "genero": "Unissex", "preco": "500.00", "estoque": 0, "status": "erro404"}
 ];
 
+// SKUs que já foram otimizados em sessão anterior (pré-carrega o progresso mesmo em navegador novo)
+const DONE_DEFAULT = CATALOG.filter(p => p.status === 'trabalhado' || p.status === 'erro404').map(p => p.sku);
+
 // STATUS DOS CADASTROS
-let catalogStatus = JSON.parse(localStorage.getItem('ads_status') || '{}');
+let catalogStatus = (() => {
+  const base = {};
+  DONE_DEFAULT.forEach(sku => base[sku] = { done: true, ts: 0, nome: '', preCarregado: true });
+  const salvo = JSON.parse(localStorage.getItem('ads_status') || '{}');
+  return { ...base, ...salvo };
+})();
 let photos = [];
 let acIdx = -1;
 
@@ -1005,8 +1073,8 @@ function acSearch(q) {
   if (!matches.length) { list.classList.remove('open'); return; }
   list.innerHTML = matches.map((p, i) => `
     <div class="ac-item" onclick="selectProduct(${CATALOG.indexOf(p)})" data-idx="${i}">
-      <div class="ac-nome">${p.nome}</div>
-      <div class="ac-meta">${p.marca} · ${p.cat} · <span class="ac-sku">${p.sku}</span></div>
+      <div class="ac-nome">${p.nome}${p.status==='erro404'?' <span style="color:var(--red);font-size:10px">⚠️ erro 404</span>':''}</div>
+      <div class="ac-meta">${p.marca} · ${p.cat} · Estoque: ${p.estoque ?? '—'} · <span class="ac-sku">${p.sku}</span></div>
     </div>
   `).join('');
   acIdx = -1;
@@ -1329,40 +1397,51 @@ function renderCatalog() {
     const matchM = !fm || p.marca === fm;
     const matchC = !fc || p.cat.includes(fc);
     const isDone = catalogStatus[p.sku]?.done;
-    const matchS = !fs || (fs==='done'&&isDone) || (fs==='pending'&&!isDone);
+    const isErro = p.status === 'erro404';
+    const matchS = !fs || (fs==='done'&&isDone&&!isErro) || (fs==='pending'&&!isDone&&!isErro) || (fs==='erro404'&&isErro);
     return matchQ && matchM && matchC && matchS;
   });
 
   const tbody = document.getElementById('cat-tbody');
   tbody.innerHTML = filtered.map(p => {
     const done = catalogStatus[p.sku]?.done;
-    return `<tr class="${done?'done':''}">
+    const isErro = p.status === 'erro404';
+    let statusHtml;
+    if (isErro) statusHtml = '<span class="badge-error">⚠️ Erro 404 — sincronizar Olist</span>';
+    else if (done) statusHtml = '<span class="badge-done">✓ Pronto</span>';
+    else statusHtml = '<span class="badge-pending">Pendente</span>';
+    return `<tr class="${done&&!isErro?'done':''}">
       <td>${p.nome}</td>
       <td class="td-sku">${p.sku}</td>
       <td class="td-marca">${p.marca}</td>
       <td class="td-cat">${p.cat}</td>
+      <td class="td-estoque">${p.estoque ?? '—'}</td>
       <td class="td-preco">R$ ${parseFloat(p.preco||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
-      <td class="td-status">${done?'<span class="badge-done">✓ Pronto</span>':'<span class="badge-pending">Pendente</span>'}</td>
-      <td><button class="btn-select-product" onclick="selectFromCatalog('${p.sku}')">Selecionar</button></td>
+      <td class="td-status">${statusHtml}</td>
+      <td><button class="btn-select-product" onclick="selectFromCatalog('${p.sku}')" ${isErro?'title="Conteúdo já gerado antes — produto sumiu da Nuvemshop por erro de sync com Olist"':''}>Selecionar</button></td>
     </tr>`;
   }).join('');
 
   // Stats
   const total = CATALOG.length;
-  const done = CATALOG.filter(p => catalogStatus[p.sku]?.done).length;
-  const pct = Math.round(done/total*100);
+  const comErro = CATALOG.filter(p => p.status === 'erro404').length;
+  const done = CATALOG.filter(p => catalogStatus[p.sku]?.done && p.status !== 'erro404').length;
+  const pendentes = total - done - comErro;
+  const pct = Math.round(done/(total-comErro)*100);
   document.getElementById('cat-stats').innerHTML = `
     <div class="stat-item"><div class="stat-num">${total}</div><div class="stat-lbl">Total de produtos</div></div>
     <div class="stat-item"><div class="stat-num" style="color:var(--green)">${done}</div><div class="stat-lbl">Cadastrados</div></div>
-    <div class="stat-item"><div class="stat-num" style="color:var(--amber)">${total-done}</div><div class="stat-lbl">Pendentes</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--amber)">${pendentes}</div><div class="stat-lbl">Pendentes</div></div>
+    <div class="stat-item"><div class="stat-num" style="color:var(--red)">${comErro}</div><div class="stat-lbl">Com erro 404</div></div>
     <div class="stat-item"><div class="stat-num">${pct}%</div><div class="stat-lbl">Progresso</div></div>
   `;
 
   // Progress sidebar
   const marcas = [...new Set(CATALOG.map(p=>p.marca))].filter(Boolean).sort();
   document.getElementById('cat-progress').innerHTML = marcas.map(m => {
-    const total_m = CATALOG.filter(p=>p.marca===m).length;
-    const done_m = CATALOG.filter(p=>p.marca===m&&catalogStatus[p.sku]?.done).length;
+    const grupo = CATALOG.filter(p=>p.marca===m && p.status!=='erro404');
+    const total_m = grupo.length;
+    const done_m = grupo.filter(p=>catalogStatus[p.sku]?.done).length;
     const pct_m = total_m ? Math.round(done_m/total_m*100) : 0;
     return `<div style="margin-bottom:14px">
       <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
