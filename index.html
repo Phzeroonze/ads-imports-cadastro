@@ -1304,8 +1304,9 @@ function renderResult(d, nomeProduto, sku) {
   set('r-url', d.url_slug);
   set('r-tags', (d.tags||[]).join(', '));
 
-  // HTML
-  set('r-html', d.descricao_html);
+  // HTML — aviso de imagem ilustrativa fixado antes do Bloco 1 (não depende da IA gerar)
+  const avisoImagemIlustrativa = '<p style="font-size:13px;color:#777;font-style:italic;margin:0 0 18px;">⚠️ As fotos deste produto são meramente ilustrativas. Pequenas variações de cor, tom, tamanho ou estampa em relação à imagem podem ocorrer devido à iluminação da foto, calibração da tela do seu dispositivo ou lote de fabricação.</p>';
+  set('r-html', avisoImagemIlustrativa + (d.descricao_html || ''));
 
   // Fotos — com preview de imagem se disponivel
   const fc = document.getElementById('r-fotos-container');
