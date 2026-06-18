@@ -1030,6 +1030,13 @@ REGRAS ABSOLUTAS:
 - ncm: código correto para o tipo de produto
 - relacionados: usar APENAS produtos reais do catálogo acima
 
+REGRAS CRÍTICAS DE FORMATO JSON — LEIA COM ATENÇÃO (erros aqui quebram o sistema):
+- TODO o HTML dentro de "descricao_html" deve usar APENAS aspas simples ('') em qualquer atributo HTML (style='...', class='...', href='...'). NUNCA use aspas duplas (") dentro do HTML, pois isso quebra o JSON.
+- NUNCA use aspas duplas (") em nenhum texto de nenhum campo, nem para indicar polegadas, citações ou nomes de produto. Se precisar enfatizar uma palavra ou citar algo, use aspas simples (') ou itálico via <em>, nunca aspas duplas.
+- NUNCA insira quebras de linha reais (Enter) dentro do valor de uma string do JSON. O HTML deve ser escrito em uma única linha contínua sem quebras de linha — isso não afeta a renderização do HTML (o navegador ignora quebras de linha), mas quebras de linha reais dentro de uma string JSON tornam o JSON inválido.
+- Não use markdown, comentários ou texto fora do objeto JSON.
+- Antes de finalizar a resposta, releia mentalmente o JSON gerado e confirme que todas as aspas duplas usadas são apenas as delimitadoras de strings do JSON (nunca aparecendo dentro do conteúdo de uma string).
+
 Retorne SOMENTE um JSON válido sem markdown ou texto extra:
 {
   "nome": "nome para campo Nome do Nuvemshop",
@@ -1252,7 +1259,7 @@ ${photos.length ? `\nFotos: ${photos.length} fotos anexadas — gere nome e alt 
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 8000,
+        max_tokens: 16000,
         system: buildSystemPrompt(),
         messages: [{ role: 'user', content }]
       })
@@ -1267,7 +1274,18 @@ ${photos.length ? `\nFotos: ${photos.length} fotos anexadas — gere nome e alt 
     const match = raw.match(/\{[\s\S]*\}/);
     if (!match) throw new Error('JSON não encontrado na resposta');
 
-    const result = JSON.parse(match[0]);
+    // Sanitização segura: remove quebras de linha reais (que não deveriam existir dentro de strings JSON)
+    // substituindo por espaço — não afeta a renderização do HTML, só corrige JSON malformado.
+    const sanitized = match[0].replace(/[\r\n\t]+/g, ' ');
+
+    let result;
+    try {
+      result = JSON.parse(sanitized);
+    } catch (parseErr) {
+      const pos = parseInt((parseErr.message.match(/position (\d+)/) || [])[1]) || 0;
+      const trecho = sanitized.slice(Math.max(0, pos - 80), pos + 80);
+      throw new Error(`JSON inválido (${parseErr.message}). Trecho problemático: "...${trecho}..."`);
+    }
     renderResult(result, nome, sku);
 
     // Salvar status
